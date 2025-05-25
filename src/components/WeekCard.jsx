@@ -1,9 +1,10 @@
-import React from 'react';
-import { Trophy, Calendar, Target } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trophy, Calendar, Target, ChevronDown, ChevronUp } from 'lucide-react';
 import DayCard from './DayCard';
 import { getDaysByWeek, getWeekProblems } from '../utils/dsaData';
 
 const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange, currentDay }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const weekDays = getDaysByWeek(week);
   const weekTotalProblems = getWeekProblems(week);
   
@@ -20,21 +21,31 @@ const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange
 
   return (
     <div className={`rounded-xl shadow-lg p-6 border-2 transition-all duration-300 ${getWeekStatusColor()}`}>
-      <div className="mb-6">
+      <div 
+        className="mb-6 cursor-pointer"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
             <Trophy className="w-6 h-6 text-yellow-500" />
             Week {week}
           </h2>
-          <div className="flex items-center gap-4 text-sm text-gray-600">
-            <span className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              {completedDays}/{weekDays.length} days
-            </span>
-            <span className="flex items-center gap-1">
-              <Target className="w-4 h-4" />
-              {totalSolvedInWeek}/{weekTotalProblems} problems
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 text-sm text-gray-600">
+              <span className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                {completedDays}/{weekDays.length} days
+              </span>
+              <span className="flex items-center gap-1">
+                <Target className="w-4 h-4" />
+                {totalSolvedInWeek}/{weekTotalProblems} problems
+              </span>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="w-5 h-5 text-gray-600" />
+            ) : (
+              <ChevronDown className="w-5 h-5 text-gray-600" />
+            )}
           </div>
         </div>
         
@@ -55,18 +66,20 @@ const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange
         </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-        {weekDays.map(day => (
-          <DayCard
-            key={day.day}
-            day={day}
-            progress={progress}
-            onDayCompletion={onDayCompletion}
-            onProblemsChange={onProblemsChange}
-            currentDay={currentDay}
-          />
-        ))}
-      </div>
+      {isExpanded && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {weekDays.map(day => (
+            <DayCard
+              key={day.day}
+              day={day}
+              progress={progress}
+              onDayCompletion={onDayCompletion}
+              onProblemsChange={onProblemsChange}
+              currentDay={currentDay}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

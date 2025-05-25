@@ -274,8 +274,6 @@ const App = () => {
   };
 
   const handleProblemsChange = (day, count) => {
-    if (!progress[day]?.completed) return;
-
     const newProgress = {
       ...progress,
       [day]: {

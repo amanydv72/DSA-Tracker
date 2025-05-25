@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { CheckCircle2, Clock, Target } from 'lucide-react';
 
 const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay }) => {
@@ -22,6 +22,21 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
 
   const problemsSolved = progress[day.day]?.problemsSolved || 0;
   const completionRate = (problemsSolved / day.problems) * 100;
+
+  // Auto-complete when problems solved meets or exceeds target
+  useEffect(() => {
+    if (problemsSolved >= day.problems && !progress[day.day]?.completed) {
+      onDayCompletion(day.day, true);
+    }
+  }, [problemsSolved, day.problems, day.day, progress, onDayCompletion]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    // Allow empty string or valid numbers
+    if (value === '' || (!isNaN(value) && value >= 0)) {
+      onProblemsChange(day.day, value);
+    }
+  };
 
   return (
     <div className={`p-5 rounded-lg border-2 transition-all duration-300 card-hover ${getStatusColor()}`}>
@@ -67,10 +82,9 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
             type="number"
             min="0"
             max={day.problems + 10}
-            value={problemsSolved}
-            onChange={(e) => onProblemsChange(day.day, e.target.value)}
+            value={problemsSolved || ''}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="0"
           />
         </div>
         
