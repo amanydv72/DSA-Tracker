@@ -23,10 +23,12 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
   const problemsSolved = progress[day.day]?.problemsSolved || 0;
   const completionRate = (problemsSolved / day.problems) * 100;
 
-  // Auto-complete when problems solved meets or exceeds target
+  // Auto-complete/uncomplete based on problems solved
   useEffect(() => {
     if (problemsSolved >= day.problems && !progress[day.day]?.completed) {
       onDayCompletion(day.day, true);
+    } else if (problemsSolved < day.problems && progress[day.day]?.completed) {
+      onDayCompletion(day.day, false);
     }
   }, [problemsSolved, day.problems, day.day, progress, onDayCompletion]);
 

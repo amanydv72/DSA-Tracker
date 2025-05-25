@@ -13,10 +13,10 @@ const Dashboard = ({ progress, dsaPlan, totalProblems }) => {
     return dsaPlan.slice(0, day).reduce((sum, d) => sum + d.problems, 0);
   };
 
-  const currentDay = Math.min(30, Math.max(1, completedDays + 1));
+  const currentDay = Math.min(35, Math.max(1, completedDays + 1));
   const expectedProblemsToday = expectedProblemsUpToToday(currentDay);
   const progressPercentage = (totalSolvedProblems / totalProblems) * 100;
-  const daysRemaining = 30 - completedDays;
+  const daysRemaining = 35 - completedDays;
   const avgProblemsPerDay = completedDays > 0 ? totalSolvedProblems / completedDays : 0;
 
   // Lag calculation
@@ -25,7 +25,7 @@ const Dashboard = ({ progress, dsaPlan, totalProblems }) => {
 
   // Estimated completion
   const remainingProblems = totalProblems - totalSolvedProblems;
-  const estimatedDaysToComplete = avgProblemsPerDay > 0 ? Math.ceil(remainingProblems / avgProblemsPerDay) : 30;
+  const estimatedDaysToComplete = avgProblemsPerDay > 0 ? Math.ceil(remainingProblems / avgProblemsPerDay) : 35;
 
   // Performance indicators
   const isOnTrack = problemLag <= 5; // Allow 5 problems tolerance
@@ -54,19 +54,19 @@ const Dashboard = ({ progress, dsaPlan, totalProblems }) => {
 
         <StatsCard
           title="Days Completed"
-          value={`${completedDays}/30`}
+          value={`${completedDays}/35`}
           icon={Calendar}
           color="purple"
           subtitle={`${daysRemaining} days remaining`}
-          progress={(completedDays / 30) * 100}
+          progress={(completedDays / 35) * 100}
         />
 
         <StatsCard
           title="Est. Completion"
           value={`${estimatedDaysToComplete}d`}
           icon={Clock}
-          color={estimatedDaysToComplete <= 30 ? "green" : "orange"}
-          subtitle={estimatedDaysToComplete <= 30 ? "On track!" : `${estimatedDaysToComplete - 30}d over`}
+          color={estimatedDaysToComplete <= 35 ? "green" : "orange"}
+          subtitle={estimatedDaysToComplete <= 35 ? "On track!" : `${estimatedDaysToComplete - 35}d over`}
         />
       </div>
 
@@ -144,11 +144,11 @@ const Dashboard = ({ progress, dsaPlan, totalProblems }) => {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Required Daily Rate:</span>
-              <span className="font-semibold">15 problems/day</span>
+              <span className="font-semibold">13 problems/day</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Your Current Rate:</span>
-              <span className={`font-semibold ${avgProblemsPerDay >= 15 ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`font-semibold ${avgProblemsPerDay >= 13 ? 'text-green-600' : 'text-red-600'}`}>
                 {avgProblemsPerDay.toFixed(1)} problems/day
               </span>
             </div>

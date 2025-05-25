@@ -48,7 +48,7 @@ const Navbar = ({ progress }) => {
                 DSA A2Z Sheet Tracker
               </h1>
               <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'} mt-1 text-sm sm:text-base`}>
-                30-Day Challenge • 450 Problems • 8 Hours/Day
+                35-Day Challenge • 455 Problems • 8 Hours/Day
               </p>
             </div>
           </div>
@@ -149,7 +149,7 @@ const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handlePro
           </p>
         </div>
 
-        {[1, 2, 3, 4].map(week => (
+        {[1, 2, 3, 4, 5].map(week => (
           <WeekCard
             key={week}
             week={week}
@@ -285,7 +285,7 @@ const App = () => {
   };
 
   const completedDays = Object.keys(progress).filter(day => progress[day]?.completed).length;
-  const currentDay = Math.min(30, Math.max(1, completedDays + 1));
+  const currentDay = Math.min(35, Math.max(1, completedDays + 1));
 
   return (
     <Router>
