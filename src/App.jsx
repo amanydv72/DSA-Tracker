@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Book, Sun, Moon, BarChart2, Trophy, Flame } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
@@ -9,7 +9,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { dsaPlan, weekTitles, totalProblems } from './utils/dsaData';
 import { useTheme } from './context/ThemeContext';
 
-const Navbar = ({ progress }) => {
+const Navbar = ({ progress, startDate }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const location = useLocation();
 
@@ -120,7 +120,7 @@ const Navbar = ({ progress }) => {
   );
 };
 
-const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handleProblemsChange, currentDay }) => {
+const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handleProblemsChange, currentDay, startDate, daysSinceStart }) => {
   const { isDarkMode } = useTheme();
   
   return (
@@ -131,6 +131,8 @@ const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handlePro
           progress={progress}
           dsaPlan={dsaPlan}
           totalProblems={totalProblems}
+          startDate={startDate}
+          daysSinceStart={daysSinceStart}
         />
       </section>
 
@@ -258,7 +260,15 @@ const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handlePro
 
 const App = () => {
   const [progress, setProgress] = useLocalStorage('dsaProgress', {});
+  const [startDate, setStartDate] = useLocalStorage('dsaStartDate', null);
   const { isDarkMode } = useTheme();
+
+  // Initialize start date if not set
+  useEffect(() => {
+    if (!startDate && Object.keys(progress).length === 0) {
+      setStartDate(new Date().toISOString());
+    }
+  }, [startDate, progress]);
 
   const handleDayCompletion = (day, completed) => {
     const newProgress = {
@@ -287,6 +297,9 @@ const App = () => {
   const completedDays = Object.keys(progress).filter(day => progress[day]?.completed).length;
   const currentDay = Math.min(35, Math.max(1, completedDays + 1));
 
+  // Calculate days since start (starting from 1)
+  const daysSinceStart = startDate ? Math.max(1, Math.floor((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1) : 0;
+
   return (
     <Router>
       <div className={`min-h-screen transition-colors duration-200 ${
@@ -294,7 +307,7 @@ const App = () => {
           ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
           : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
       }`}>
-        <Navbar progress={progress} />
+        <Navbar progress={progress} startDate={startDate} />
         
         <Routes>
           <Route 
@@ -307,16 +320,18 @@ const App = () => {
                 handleDayCompletion={handleDayCompletion}
                 handleProblemsChange={handleProblemsChange}
                 currentDay={currentDay}
+                startDate={startDate}
+                daysSinceStart={daysSinceStart}
               />
             } 
           />
           <Route 
             path="/analytics" 
-            element={<Analytics progress={progress} dsaPlan={dsaPlan} />} 
+            element={<Analytics progress={progress} dsaPlan={dsaPlan} startDate={startDate} />} 
           />
           <Route 
             path="/achievements" 
-            element={<Achievements progress={progress} dsaPlan={dsaPlan} />} 
+            element={<Achievements progress={progress} dsaPlan={dsaPlan} startDate={startDate} />} 
           />
         </Routes>
 
