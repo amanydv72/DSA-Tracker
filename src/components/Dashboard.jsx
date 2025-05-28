@@ -416,6 +416,67 @@ const Dashboard = ({
         </div>
       </div>
 
+      {/* Status Alerts */}
+      {statistics.problemLag > 5 && (
+        <div className={`${
+          isDarkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200'
+        } border rounded-xl p-6 shadow-lg`} role="alert">
+          <div className="flex items-start gap-4">
+            <AlertTriangle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" aria-hidden="true" />
+            <div className="flex-1">
+              <h3 className={`font-bold text-lg mb-2 ${
+                isDarkMode ? 'text-red-300' : 'text-red-800'
+              }`}>
+                Action Required: Behind Schedule
+              </h3>
+              <div className={`space-y-2 ${isDarkMode ? 'text-red-200' : 'text-red-700'}`}>
+                <p>You're <strong>{statistics.problemLag} problems</strong> behind schedule.</p>
+                <div className={`mt-4 p-4 rounded-lg ${
+                  isDarkMode ? 'bg-red-800/30' : 'bg-red-100'
+                }`}>
+                  <h4 className="font-semibold mb-3">Quick Recovery Plan:</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center gap-2">
+                      <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                      <span>+{Math.ceil(statistics.problemLag / statistics.remainingDays)} problems/day</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4" aria-hidden="true" />
+                      <span>Start with basics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Timer className="w-4 h-4" aria-hidden="true" />
+                      <span>Add 1-2 hours daily</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {statistics.totalSolvedProblems > statistics.expectedProblemsByNow && (
+        <div className={`${
+          isDarkMode ? 'bg-green-900/30 border-green-700' : 'bg-green-50 border-green-200'
+        } border rounded-xl p-6 shadow-lg`}>
+          <div className="flex items-center gap-4">
+            <Star className="w-6 h-6 text-green-500" />
+            <div>
+              <h3 className={`font-bold text-lg ${
+                isDarkMode ? 'text-green-300' : 'text-green-800'
+              }`}>
+                Outstanding Progress! 🎉
+              </h3>
+              <p className={`${isDarkMode ? 'text-green-200' : 'text-green-700'}`}>
+                You're <strong>{statistics.totalSolvedProblems - statistics.expectedProblemsByNow} problems</strong> ahead of schedule. 
+                Keep up the excellent work!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Import Error Alert */}
       {importError && (
         <div className={`${
@@ -626,67 +687,6 @@ const Dashboard = ({
           </div>
         </div>
       </div>
-
-      {/* Status Alerts */}
-      {statistics.problemLag > 5 && (
-        <div className={`${
-          isDarkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200'
-        } border rounded-xl p-6 shadow-lg`} role="alert">
-          <div className="flex items-start gap-4">
-            <AlertTriangle className="w-6 h-6 text-red-500 mt-1 flex-shrink-0" aria-hidden="true" />
-            <div className="flex-1">
-              <h3 className={`font-bold text-lg mb-2 ${
-                isDarkMode ? 'text-red-300' : 'text-red-800'
-              }`}>
-                Action Required: Behind Schedule
-              </h3>
-              <div className={`space-y-2 ${isDarkMode ? 'text-red-200' : 'text-red-700'}`}>
-                <p>You're <strong>{statistics.problemLag} problems</strong> behind schedule.</p>
-                <div className={`mt-4 p-4 rounded-lg ${
-                  isDarkMode ? 'bg-red-800/30' : 'bg-red-100'
-                }`}>
-                  <h4 className="font-semibold mb-2">Recovery Strategies:</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <RotateCcw className="w-4 h-4" aria-hidden="true" />
-                      <span>+{Math.ceil(statistics.problemLag / statistics.remainingDays)} daily problems</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4" aria-hidden="true" />
-                      <span>Focus on easier topics first</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Timer className="w-4 h-4" aria-hidden="true" />
-                      <span>Extend study hours temporarily</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {statistics.totalSolvedProblems > statistics.expectedProblemsByNow && (
-        <div className={`${
-          isDarkMode ? 'bg-green-900/30 border-green-700' : 'bg-green-50 border-green-200'
-        } border rounded-xl p-6 shadow-lg`}>
-          <div className="flex items-center gap-4">
-            <Star className="w-6 h-6 text-green-500" />
-            <div>
-              <h3 className={`font-bold text-lg ${
-                isDarkMode ? 'text-green-300' : 'text-green-800'
-              }`}>
-                Outstanding Progress! 🎉
-              </h3>
-              <p className={`${isDarkMode ? 'text-green-200' : 'text-green-700'}`}>
-                You're <strong>{statistics.totalSolvedProblems - statistics.expectedProblemsByNow} problems</strong> ahead of schedule. 
-                Keep up the excellent work!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Detailed Analytics Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
