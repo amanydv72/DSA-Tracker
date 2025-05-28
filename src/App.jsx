@@ -311,10 +311,11 @@ const App = () => {
 
   // Initialize start date if not set (using India timezone)
   useEffect(() => {
-    if (!startDate && Object.keys(progress).length === 0) {
+    // Always ensure start date is set
+    if (!startDate) {
       setStartDate(getIndiaDate().toISOString());
     }
-  }, [startDate, progress, setStartDate]);
+  }, [startDate, setStartDate]);
 
   const handleDayCompletion = (day, completed) => {
     const newProgress = {
