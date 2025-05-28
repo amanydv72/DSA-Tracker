@@ -1,6 +1,6 @@
 # DSA A2Z Sheet Tracker 🚀
 
-A comprehensive progress tracking application for Striver's A2Z DSA Sheet - complete 450 problems in 30 days!
+A clean and intuitive progress tracking application for Striver's A2Z DSA Sheet - complete 455 problems in 35 days!
 
 ![DSA Tracker](https://img.shields.io/badge/DSA-Tracker-blue)
 ![React](https://img.shields.io/badge/React-18.2-blue)
@@ -10,22 +10,22 @@ A comprehensive progress tracking application for Striver's A2Z DSA Sheet - comp
 ## 🎯 Features
 
 ### 📊 **Smart Analytics Dashboard**
-- **Progress Visualization**: Real-time progress bars and completion percentages
-- **Performance Metrics**: Track problems solved, daily averages, and completion rates
-- **Lag Detection**: Automatic alerts when falling behind schedule
-- **Estimated Completion**: Predictive analysis for finish date
+- **Progress Tracking**: Clear progress indicators and completion percentages
+- **Performance Metrics**: Track problems solved and daily averages
+- **Smart Alerts**: Simple notifications when falling behind schedule
+- **Completion Estimates**: Basic predictions for finish date
 
-### 📈 **Comprehensive Tracking**
-- **Daily Check-ins**: Mark days complete and log problems solved
-- **Weekly Organization**: Structured by topic complexity and difficulty
-- **Visual Progress**: Color-coded cards showing current status
-- **Problem Counter**: Track actual vs target problems per day
+### 📈 **Progress Tracking**
+- **Daily Progress**: Mark days complete and log problems solved
+- **Weekly Structure**: Organized by topic and difficulty
+- **Visual Status**: Clean, color-coded progress indicators
+- **Problem Counter**: Track daily problem targets
 
-### 🎨 **Modern UI/UX**
-- **Responsive Design**: Works seamlessly on all devices
-- **Interactive Elements**: Smooth animations and hover effects
-- **Intuitive Navigation**: Clean, organized layout
-- **Real-time Updates**: Instant feedback on progress changes
+### 🎨 **Clean UI/UX**
+- **Responsive Design**: Works on all devices
+- **Simple Interface**: Easy to use and understand
+- **Quick Actions**: One-click progress updates
+- **Real-time Updates**: Instant progress feedback
 
 ## 🛠️ Technology Stack
 
@@ -48,10 +48,11 @@ dsa-tracker/
 │   │   ├── WeekCard.jsx        # Weekly progress container
 │   │   ├── DayCard.jsx         # Individual day tracking
 │   │   └── StatsCard.jsx       # Reusable stat components
-│   ├── hooks/
-│   │   └── useLocalStorage.js  # Custom localStorage hook
+│   ├── context/
+│   │   └── ThemeContext.jsx    # Dark/Light theme management
 │   ├── utils/
-│   │   └── dsaData.js          # DSA plan data and utilities
+│   │   ├── dsaData.js          # DSA plan data
+│   │   └── dataExport.js       # Progress import/export
 │   ├── App.jsx                 # Main application component
 │   ├── main.jsx                # Application entry point
 │   └── index.css               # Global styles and Tailwind
@@ -76,19 +77,12 @@ cd dsa-tracker
 npm install
 ```
 
-2. **Install dependencies**:
-```bash
-npm install -D tailwindcss postcss autoprefixer
-npm install lucide-react
-npx tailwindcss init -p
-```
-
-3. **Start development server**:
+2. **Start development server**:
 ```bash
 npm run dev
 ```
 
-4. **Open your browser**:
+3. **Open your browser**:
 Navigate to `http://localhost:3000`
 
 ### Build for Production
@@ -106,90 +100,78 @@ npm run preview
 | **Week 3** | Advanced DS | 100 | Trees, BST, Heaps, Tries, Hashing |
 | **Week 4** | Algorithms | 180 | Graphs, DP, Greedy, Miscellaneous |
 
-**Total**: 450 problems in 30 days (15 problems/day average)
+**Total**: 455 problems in 35 days (13 problems/day average)
 
 ## 🎯 How to Use
 
 ### Daily Workflow
 1. **Check Today's Target**: View your current day and problem goals
 2. **Mark Progress**: Check off completed days and input problems solved
-3. **Monitor Dashboard**: Track your overall progress and performance
-4. **Address Gaps**: Use lag alerts to stay on schedule
-5. **Review & Plan**: Use analytics to adjust your study strategy
+3. **Monitor Dashboard**: Track your overall progress
+4. **Stay on Track**: Use simple alerts to maintain schedule
+5. **Review Progress**: Use basic analytics to guide your study
 
-### Key Metrics to Watch
-- **Progress Percentage**: Overall completion rate
+### Key Metrics
+- **Progress**: Overall completion percentage
 - **Daily Average**: Problems solved per day
-- **Lag Indicator**: How far behind/ahead you are
-- **Estimated Completion**: Predicted finish date
+- **Schedule Status**: On track, ahead, or behind
+- **Completion Date**: Estimated finish date
 
 ## 🔧 Customization
 
-### Adding New Features
+### Adding Features
 The modular structure makes it easy to extend:
 
 ```javascript
-// Add new tracking metrics in Dashboard.jsx
-const customMetric = calculateCustomMetric(progress);
+// Add new metrics in Dashboard.jsx
+const newMetric = calculateMetric(progress);
 
-// Create new card types in components/
-const CustomCard = ({ data }) => { /* implementation */ };
-
-// Extend data structure in utils/dsaData.js
-export const extendedPlan = dsaPlan.map(day => ({
-  ...day,
-  difficulty: calculateDifficulty(day),
-  estimatedTime: calculateTime(day)
-}));
+// Create new components
+const NewComponent = ({ data }) => { /* implementation */ };
 ```
 
-### Styling Modifications
+### Styling
 Built with Tailwind CSS for easy customization:
 
 ```css
-/* Add custom animations in index.css */
+/* Add custom styles in index.css */
 @layer components {
-  .custom-animation {
-    @apply transform transition-all duration-500 hover:scale-110;
+  .custom-style {
+    @apply transition-all duration-300;
   }
 }
 ```
 
-## 📱 Progressive Web App (PWA) Ready
+## 📱 Data Management
 
-Add PWA capabilities by:
-1. Installing `vite-pwa` plugin
-2. Adding service worker
-3. Creating manifest.json
-4. Enabling offline functionality
+- **Export Progress**: Save your progress as JSON
+- **Import Progress**: Restore from saved file
+- **Local Storage**: Automatic progress saving
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit changes: `git commit -m 'Add AmazingFeature'`
-4. Push to branch: `git push origin feature/AmazingFeature`
+2. Create feature branch: `git checkout -b feature/NewFeature`
+3. Commit changes: `git commit -m 'Add NewFeature'`
+4. Push to branch: `git push origin feature/NewFeature`
 5. Open Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
-- **Striver (Raj Vikramaditya)** for the comprehensive A2Z DSA Sheet
-- **TakeUForward** community for continuous support
-- All contributors and users of this tracker
+- **Striver (Raj Vikramaditya)** for the A2Z DSA Sheet
+- **TakeUForward** community for support
+- All contributors and users
 
 ## 📞 Support
 
-- 🐛 **Bug Reports**: [Open an issue](https://github.com/your-username/dsa-tracker/issues)
-- 💡 **Feature Requests**: [Discussion page](https://github.com/your-username/dsa-tracker/discussions)
-- 📧 **Questions**: [Contact us](mailto:your-email@example.com)
+- 🐛 **Bug Reports**: [Open an issue](https://github.com/amanydv72/dsa-tracker/issues)
+- 💡 **Feature Requests**: [Discussion page](https://github.com/amanydv72/dsa-tracker/discussions)
+- 📧 **Questions**: [Contact us](mailto:amanydv879587@gmail.com)
 
 ---
 
-**Happy Coding! 🎉** Start your DSA journey today and track every step towards your goal!
+**Happy Coding! 🎉** Start your DSA journey today!
 
-[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red)](https://github.com/your-username)
-[![Stars](https://img.shields.io/github/stars/your-username/dsa-tracker?style=social)](https://github.com/your-username/dsa-tracker)
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red)](https://github.com/amanydv72)
+[![Stars](https://img.shields.io/github/stars/your-username/dsa-tracker?style=social)](https://github.com/amanydv72/dsa-tracker)
