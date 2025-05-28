@@ -2,6 +2,7 @@
 
 A clean and intuitive progress tracking application for Striver's A2Z DSA Sheet - complete 455 problems in 35 days!
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-green)](https://aman-dsa-tracker.netlify.app/)
 ![DSA Tracker](https://img.shields.io/badge/DSA-Tracker-blue)
 ![React](https://img.shields.io/badge/React-18.2-blue)
 ![Tailwind](https://img.shields.io/badge/Tailwind-3.3-blue)
@@ -63,6 +64,9 @@ dsa-tracker/
 ```
 
 ## 🚀 Quick Start
+
+### Live Demo
+Check out the live application: [DSA A2Z Sheet Tracker](https://aman-dsa-tracker.netlify.app/)
 
 ### Prerequisites
 - Node.js 16+ 
