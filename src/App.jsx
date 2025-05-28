@@ -332,7 +332,7 @@ const App = () => {
   const handleProblemsChange = (day, count) => {
     const parsedCount = parseInt(count) || 0;
     const maxProblems = dsaPlan[day-1]?.problems || 0;
-    const validatedCount = Math.max(0, Math.min(parsedCount, maxProblems * 2)); // Allow up to 2x normal problems
+    const validatedCount = Math.max(0, parsedCount);
     
     const newProgress = {
       ...progress,
