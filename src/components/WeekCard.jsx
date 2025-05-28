@@ -3,7 +3,7 @@ import { Trophy, Calendar, Target, ChevronDown, ChevronUp } from 'lucide-react';
 import DayCard from './DayCard';
 import { getDaysByWeek, getWeekProblems } from '../utils/dsaData';
 
-const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange, currentDay }) => {
+const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange, currentDay, startDate }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const weekDays = getDaysByWeek(week);
   const weekTotalProblems = getWeekProblems(week);
@@ -14,6 +14,7 @@ const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange
   const weekProgress = (totalSolvedInWeek / weekTotalProblems) * 100;
 
   const getWeekStatusColor = () => {
+    if (!startDate) return 'border-gray-300 bg-white';
     if (completedDays === weekDays.length) return 'border-green-400 bg-green-50';
     if (completedDays > 0) return 'border-blue-400 bg-blue-50';
     return 'border-gray-300 bg-white';
@@ -76,6 +77,7 @@ const WeekCard = ({ week, weekTitle, progress, onDayCompletion, onProblemsChange
               onDayCompletion={onDayCompletion}
               onProblemsChange={onProblemsChange}
               currentDay={currentDay}
+              startDate={startDate}
             />
           ))}
         </div>

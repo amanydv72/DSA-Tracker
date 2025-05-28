@@ -159,7 +159,7 @@ const Navbar = ({ progress, startDate }) => {
   );
 };
 
-const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handleProblemsChange, handleImportData, currentDay, startDate, daysSinceStart }) => {
+const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handleProblemsChange, handleImportData, currentDay, startDate, daysSinceStart, handleStartDateSubmit }) => {
   const { isDarkMode } = useTheme();
   
   return (
@@ -172,6 +172,10 @@ const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handlePro
           totalProblems={totalProblems}
           startDate={startDate}
           daysSinceStart={daysSinceStart}
+          handleImportData={handleImportData}
+          handleStartDateSubmit={handleStartDateSubmit}
+          getIndiaDateString={getIndiaDateString}
+          getIndiaDate={getIndiaDate}
         />
       </section>
 
@@ -199,6 +203,7 @@ const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handlePro
             onDayCompletion={handleDayCompletion}
             onProblemsChange={handleProblemsChange}
             currentDay={currentDay}
+            startDate={startDate}
           />
         ))}
       </section>
@@ -309,13 +314,9 @@ const App = () => {
   const [startDate, setStartDate] = useLocalStorage('dsaStartDate', null);
   const { isDarkMode } = useTheme();
 
-  // Initialize start date if not set (using India timezone)
-  useEffect(() => {
-    // Always ensure start date is set
-    if (!startDate) {
-      setStartDate(getIndiaDate().toISOString());
-    }
-  }, [startDate, setStartDate]);
+  const handleStartDateSubmit = (selectedDate) => {
+    setStartDate(selectedDate.toISOString());
+  };
 
   const handleDayCompletion = (day, completed) => {
     const newProgress = {
@@ -433,6 +434,7 @@ const App = () => {
                     currentDay={calculatedStats.currentDay}
                     startDate={startDate}
                     daysSinceStart={calculatedStats.daysSinceStart}
+                    handleStartDateSubmit={handleStartDateSubmit}
                   />
                 } 
               />

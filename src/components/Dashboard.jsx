@@ -10,7 +10,17 @@ import { useTheme } from '../context/ThemeContext';
 import codingFacts from './codingFacts';
 import { exportProgressData, importProgressData } from '../utils/dataExport';
 
-const Dashboard = ({ progress, dsaPlan, totalProblems, startDate, daysSinceStart, handleImportData }) => {
+const Dashboard = ({ 
+  progress, 
+  dsaPlan, 
+  totalProblems, 
+  startDate, 
+  daysSinceStart, 
+  handleImportData, 
+  handleStartDateSubmit,
+  getIndiaDateString,
+  getIndiaDate 
+}) => {
   const { isDarkMode } = useTheme();
   // Start with a random fact on every load
   const [currentFactIndex, setCurrentFactIndex] = useState(() => Math.floor(Math.random() * codingFacts.length));
@@ -204,6 +214,67 @@ const Dashboard = ({ progress, dsaPlan, totalProblems, startDate, daysSinceStart
     }
   };
 
+  // If no start date is set, show the start journey section
+  if (!startDate) {
+    return (
+      <div className={`${
+        isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-700' : 'bg-gradient-to-r from-blue-600 to-purple-600'
+      } rounded-xl p-6 shadow-lg text-white relative overflow-hidden`}>
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-sm"></div>
+        <div className="relative z-10">
+          <div className="text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">Start Your DSA Journey! 🚀</h2>
+            <p className="text-lg mb-8 opacity-90">
+              Begin your 35-day DSA challenge and track your progress towards mastering data structures and algorithms.
+            </p>
+            
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 mb-8">
+              <h3 className="text-xl font-semibold mb-4">Choose Your Start Date</h3>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <button
+                    onClick={() => handleStartDateSubmit(getIndiaDate())}
+                    className="px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                  >
+                    Start Today
+                  </button>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      className="px-6 py-3 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition-colors cursor-pointer"
+                      defaultValue={getIndiaDateString()}
+                      max={getIndiaDateString()}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        handleStartDateSubmit(date);
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
+                <h4 className="font-semibold mb-2">📚 455 Problems</h4>
+                <p className="text-sm opacity-80">Comprehensive coverage of DSA topics</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
+                <h4 className="font-semibold mb-2">⏱️ 35 Days</h4>
+                <p className="text-sm opacity-80">Structured daily learning schedule</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-4">
+                <h4 className="font-semibold mb-2">🎯 Track Progress</h4>
+                <p className="text-sm opacity-80">Monitor your daily achievements</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular dashboard content when start date is set
   return (
     <div className="space-y-6" role="main" aria-label="DSA Challenge Dashboard">
       {/* Hero Section with Journey Overview */}

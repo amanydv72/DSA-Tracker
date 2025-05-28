@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { CheckCircle2, Clock, Target } from 'lucide-react';
+import { CheckCircle2, Clock, Target, Lock } from 'lucide-react';
 
-const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay }) => {
+const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay, startDate }) => {
   const getStatusColor = () => {
+    if (!startDate) return "bg-gray-50 border-gray-200";
     const dayProgress = progress[day.day];
     if (dayProgress?.completed) return "bg-green-100 border-green-300 shadow-green-100";
     if (day.day <= currentDay) return "bg-yellow-50 border-yellow-300 shadow-yellow-100";
@@ -10,6 +11,7 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
   };
 
   const getStatusIcon = () => {
+    if (!startDate) return <Lock className="w-5 h-5 text-gray-400" />;
     const dayProgress = progress[day.day];
     if (dayProgress?.completed) {
       return <CheckCircle2 className="w-5 h-5 text-green-500" />;
@@ -25,14 +27,16 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
 
   // Auto-complete/uncomplete based on problems solved
   useEffect(() => {
+    if (!startDate) return;
     if (problemsSolved >= day.problems && !progress[day.day]?.completed) {
       onDayCompletion(day.day, true);
     } else if (problemsSolved < day.problems && progress[day.day]?.completed) {
       onDayCompletion(day.day, false);
     }
-  }, [problemsSolved, day.problems, day.day, progress, onDayCompletion]);
+  }, [problemsSolved, day.problems, day.day, progress, onDayCompletion, startDate]);
 
   const handleInputChange = (e) => {
+    if (!startDate) return;
     const value = e.target.value;
     // Allow empty string or valid numbers
     if (value === '' || (!isNaN(value) && value >= 0)) {
@@ -53,9 +57,14 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
             id={`day-${day.day}`}
             checked={progress[day.day]?.completed || false}
             onChange={(e) => onDayCompletion(day.day, e.target.checked)}
-            className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+            disabled={!startDate}
+            className={`w-5 h-5 text-green-600 rounded focus:ring-green-500 ${
+              !startDate ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           />
-          <label htmlFor={`day-${day.day}`} className="text-sm text-gray-600">
+          <label htmlFor={`day-${day.day}`} className={`text-sm text-gray-600 ${
+            !startDate ? 'opacity-50' : ''
+          }`}>
             Complete
           </label>
         </div>
@@ -77,7 +86,9 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
         </div>
         
         <div>
-          <label className="block text-xs text-gray-600 mb-1 font-medium">
+          <label className={`block text-xs text-gray-600 mb-1 font-medium ${
+            !startDate ? 'opacity-50' : ''
+          }`}>
             Problems Solved:
           </label>
           <input
@@ -86,7 +97,10 @@ const DayCard = ({ day, progress, onDayCompletion, onProblemsChange, currentDay 
             max={day.problems + 10}
             value={problemsSolved || ''}
             onChange={handleInputChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            disabled={!startDate}
+            className={`w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              !startDate ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           />
         </div>
         
