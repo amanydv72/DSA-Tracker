@@ -1,39 +1,78 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import { Book, Sun, Moon, BarChart2, Trophy, Flame } from 'lucide-react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import Dashboard from './components/Dashboard';
-import WeekCard from './components/WeekCard';
-import Analytics from './components/Analytics';
-import Achievements from './components/Achievements';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { dsaPlan, weekTitles, totalProblems } from './utils/dsaData';
 import { useTheme } from './context/ThemeContext';
+import ErrorBoundary from './components/ErrorBoundary';
+
+// Lazy load components
+const Dashboard = lazy(() => import('./components/Dashboard'));
+const WeekCard = lazy(() => import('./components/WeekCard'));
+const Analytics = lazy(() => import('./components/Analytics'));
+const Achievements = lazy(() => import('./components/Achievements'));
+
+// Utility functions for India timezone
+const getIndiaDate = (date = new Date()) => {
+  return new Date(date.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+};
+
+const getIndiaDateString = (date = new Date()) => {
+  const indiaDate = getIndiaDate(date);
+  return indiaDate.toISOString().split('T')[0];
+};
+
+const formatNumber = (num, decimals = 1) => {
+  if (!num || isNaN(num)) return 0;
+  return Math.round(num * Math.pow(10, decimals)) / Math.pow(10, decimals);
+};
+
+const validateProgress = (progress) => {
+  return Object.entries(progress).every(([day, data]) => {
+    const dayNum = parseInt(day);
+    return dayNum >= 1 && dayNum <= 35 && 
+           (!data.problemsSolved || data.problemsSolved >= 0);
+  });
+};
 
 const Navbar = ({ progress, startDate }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const location = useLocation();
 
-  // Calculate current streak
-  const calculateStreak = () => {
-    const today = new Date().toISOString().split('T')[0];
+  // Improved streak calculation with India timezone
+  const calculateStreak = useMemo(() => {
+    if (!progress || Object.keys(progress).length === 0) return 0;
+
+    const completedDays = Object.entries(progress)
+      .filter(([_, data]) => data?.completed && data?.completedAt)
+      .map(([day, data]) => ({
+        day: parseInt(day),
+        date: getIndiaDateString(new Date(data.completedAt))
+      }))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (completedDays.length === 0) return 0;
+
     let streak = 0;
-    let currentDate = new Date();
-
-    while (true) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      const dayNumber = Object.keys(progress).find(day => 
-        progress[day]?.completedAt?.startsWith(dateStr)
-      );
-
-      if (!dayNumber) break;
-      streak++;
-      currentDate.setDate(currentDate.getDate() - 1);
+    const today = getIndiaDate();
+    
+    for (let i = 0; i < completedDays.length; i++) {
+      const expectedDate = new Date(today);
+      expectedDate.setDate(today.getDate() - streak);
+      const expectedDateStr = getIndiaDateString(expectedDate);
+      
+      if (completedDays[i].date === expectedDateStr) {
+        streak++;
+      } else if (i === 0 && completedDays[i].date === getIndiaDateString(new Date(today.getTime() - 24 * 60 * 60 * 1000))) {
+        // Allow for yesterday if today is not completed yet
+        streak++;
+      } else {
+        break;
+      }
     }
-
+    
     return streak;
-  };
-
-  const streak = calculateStreak();
+  }, [progress]);
 
   return (
     <header className={`${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white'} shadow-lg border-b transition-colors duration-200`}>
@@ -62,7 +101,7 @@ const Navbar = ({ progress, startDate }) => {
               <span className={`font-semibold text-sm sm:text-base ${
                 isDarkMode ? 'text-orange-400' : 'text-orange-700'
               }`}>
-                {streak} Day Streak
+                {calculateStreak} Day Streak
               </span>
             </div>
 
@@ -120,7 +159,7 @@ const Navbar = ({ progress, startDate }) => {
   );
 };
 
-const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handleProblemsChange, currentDay, startDate, daysSinceStart }) => {
+const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handleProblemsChange, handleImportData, currentDay, startDate, daysSinceStart }) => {
   const { isDarkMode } = useTheme();
   
   return (
@@ -258,17 +297,24 @@ const Home = ({ progress, dsaPlan, totalProblems, handleDayCompletion, handlePro
   );
 };
 
+// Loading component
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+  </div>
+);
+
 const App = () => {
   const [progress, setProgress] = useLocalStorage('dsaProgress', {});
   const [startDate, setStartDate] = useLocalStorage('dsaStartDate', null);
   const { isDarkMode } = useTheme();
 
-  // Initialize start date if not set
+  // Initialize start date if not set (using India timezone)
   useEffect(() => {
     if (!startDate && Object.keys(progress).length === 0) {
-      setStartDate(new Date().toISOString());
+      setStartDate(getIndiaDate().toISOString());
     }
-  }, [startDate, progress]);
+  }, [startDate, progress, setStartDate]);
 
   const handleDayCompletion = (day, completed) => {
     const newProgress = {
@@ -276,7 +322,7 @@ const App = () => {
       [day]: {
         ...progress[day],
         completed,
-        completedAt: completed ? new Date().toISOString() : null,
+        completedAt: completed ? getIndiaDate().toISOString() : null,
         problemsSolved: completed ? (progress[day]?.problemsSolved || dsaPlan[day-1].problems) : 0
       }
     };
@@ -284,72 +330,138 @@ const App = () => {
   };
 
   const handleProblemsChange = (day, count) => {
+    const parsedCount = parseInt(count) || 0;
+    const maxProblems = dsaPlan[day-1]?.problems || 0;
+    const validatedCount = Math.max(0, Math.min(parsedCount, maxProblems * 2)); // Allow up to 2x normal problems
+    
     const newProgress = {
       ...progress,
       [day]: {
         ...progress[day],
-        problemsSolved: parseInt(count) || 0
+        problemsSolved: validatedCount
       }
     };
     setProgress(newProgress);
   };
 
-  const completedDays = Object.keys(progress).filter(day => progress[day]?.completed).length;
-  const currentDay = Math.min(35, Math.max(1, completedDays + 1));
+  const handleImportData = (importedData) => {
+    setProgress(importedData.progress);
+    setStartDate(importedData.startDate);
+  };
 
-  // Calculate days since start (starting from 1)
-  const daysSinceStart = startDate ? Math.max(1, Math.floor((new Date() - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1) : 0;
+  // Memoized calculations for better performance
+  const calculatedStats = useMemo(() => {
+    if (!validateProgress(progress)) {
+      console.warn('Invalid progress data detected');
+    }
+
+    const completedDays = Object.keys(progress).filter(day => progress[day]?.completed).length;
+    const currentDay = Math.min(35, Math.max(1, completedDays + 1));
+
+    // Improved days since start calculation with India timezone
+    const calculateDaysSinceStart = () => {
+      if (!startDate) return 0;
+      
+      const start = getIndiaDate(new Date(startDate));
+      const today = getIndiaDate();
+      
+      // Use date-only comparison to avoid timezone issues
+      const startDateOnly = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      const todayDateOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      
+      const diffTime = todayDateOnly.getTime() - startDateOnly.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      return Math.max(1, diffDays + 1);
+    };
+
+    const daysSinceStart = calculateDaysSinceStart();
+
+    return {
+      completedDays,
+      currentDay,
+      daysSinceStart
+    };
+  }, [progress, startDate]);
+
+  // Auto-update at midnight India time
+  useEffect(() => {
+    const updateAtMidnight = () => {
+      const now = getIndiaDate();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const msUntilMidnight = tomorrow.getTime() - now.getTime();
+      
+      const timeoutId = setTimeout(() => {
+        // Force re-render by updating progress
+        setProgress(prev => ({ ...prev }));
+        updateAtMidnight(); // Schedule next update
+      }, msUntilMidnight);
+
+      return timeoutId;
+    };
+
+    const timeoutId = updateAtMidnight();
+    return () => clearTimeout(timeoutId);
+  }, [setProgress]);
 
   return (
     <Router>
-      <div className={`min-h-screen transition-colors duration-200 ${
-        isDarkMode 
-          ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
-          : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
-      }`}>
-        <Navbar progress={progress} startDate={startDate} />
-        
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <Home 
-                progress={progress}
-                dsaPlan={dsaPlan}
-                totalProblems={totalProblems}
-                handleDayCompletion={handleDayCompletion}
-                handleProblemsChange={handleProblemsChange}
-                currentDay={currentDay}
-                startDate={startDate}
-                daysSinceStart={daysSinceStart}
+      <ErrorBoundary>
+        <div className={`min-h-screen transition-colors duration-200 ${
+          isDarkMode 
+            ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900' 
+            : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'
+        }`}>
+          <Navbar progress={progress} startDate={startDate} />
+          
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route 
+                path="/" 
+                element={
+                  <Home 
+                    progress={progress}
+                    dsaPlan={dsaPlan}
+                    totalProblems={totalProblems}
+                    handleDayCompletion={handleDayCompletion}
+                    handleProblemsChange={handleProblemsChange}
+                    handleImportData={handleImportData}
+                    currentDay={calculatedStats.currentDay}
+                    startDate={startDate}
+                    daysSinceStart={calculatedStats.daysSinceStart}
+                  />
+                } 
               />
-            } 
-          />
-          <Route 
-            path="/analytics" 
-            element={<Analytics progress={progress} dsaPlan={dsaPlan} startDate={startDate} />} 
-          />
-          <Route 
-            path="/achievements" 
-            element={<Achievements progress={progress} dsaPlan={dsaPlan} startDate={startDate} />} 
-          />
-        </Routes>
+              <Route 
+                path="/analytics" 
+                element={<Analytics progress={progress} dsaPlan={dsaPlan} startDate={startDate} />} 
+              />
+              <Route 
+                path="/achievements" 
+                element={<Achievements progress={progress} dsaPlan={dsaPlan} startDate={startDate} />} 
+              />
+            </Routes>
+          </Suspense>
 
-        {/* Footer */}
-        <footer className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-800'} text-white py-8 mt-16 transition-colors duration-200`}>
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <p className="text-gray-400">
-              Built for DSA enthusiasts • Track your progress, stay motivated, achieve your goals
-            </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Based on Striver's A2Z DSA Course Sheet
-            </p>
-            <p className="text-gray-400 mt-4 text-sm">
-              Made with ❤️ by Aman Yadav
-            </p>
-          </div>
-        </footer>
-      </div>
+          {/* Footer */}
+          <footer className={`${isDarkMode ? 'bg-gray-900' : 'bg-gray-800'} text-white py-8 mt-16 transition-colors duration-200`}>
+            <div className="max-w-7xl mx-auto px-4 text-center">
+              <p className="text-gray-400">
+                Built for DSA enthusiasts • Track your progress, stay motivated, achieve your goals
+              </p>
+              <p className="text-gray-500 text-sm mt-2">
+                Based on Striver's A2Z DSA Course Sheet
+              </p>
+              <p className="text-gray-400 mt-4 text-sm">
+                Made with ❤️ by Aman Yadav
+              </p>
+            </div>
+          </footer>
+        </div>
+      </ErrorBoundary>
     </Router>
   );
 };
